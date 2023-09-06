@@ -8,17 +8,19 @@ if (!isset($_SESSION['id_petugas']) || $_SESSION['level'] !== 'admin') {
   exit();
 }
 
-$db = new Database();
-$conn = $db->getConnection();
-
-// Menghapus data petugas berdasarkan id_petugas yang diberikan di URL
 if (isset($_GET['id'])) {
   $id_petugas = $_GET['id'];
 
-  // Query untuk menghapus data petugas dari database
-  $queryDelete = "DELETE FROM petugas WHERE id_petugas = $id_petugas";
+  $db = new Database();
+  $conn = $db->getConnection();
 
-  if ($conn->query($queryDelete)) {
+  // Query untuk menghapus data petugas dari database
+  $queryDelete = "DELETE FROM petugas WHERE id_petugas = ?";
+
+  $stmt = $conn->prepare($queryDelete);
+  $stmt->bind_param('i', $id_petugas);
+
+  if ($stmt->execute()) {
     header('Location: manage_officers.php'); // Redirect kembali ke halaman kelola petugas setelah berhasil menghapus
     exit();
   } else {
@@ -28,4 +30,3 @@ if (isset($_GET['id'])) {
   header('Location: manage_officers.php'); // Redirect jika tidak ada id_petugas di URL
   exit();
 }
-?>

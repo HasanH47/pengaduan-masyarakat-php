@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aplikasi Pengaduan Masyarakat</title>
   <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-  <link rel="stylesheet" href="../assets/css/styles.css">
 </head>
 
 <body>
@@ -22,27 +21,17 @@
           <li class="nav-item">
             <a class="nav-link" href="../public/index.php">Home</a>
           </li>
-          <?php
-          if (isset($_SESSION['level'])) {
-            if ($_SESSION['level'] === 'admin') {
-              echo '<li class="nav-item">
-            <a class="nav-link" href="../admin/index.php">Dashboard</a>
-          </li>';
-            } elseif ($_SESSION['level'] === 'petugas') {
-              echo '<li class="nav-item">
-            <a class="nav-link" href="../officer/index.php">Dashboard</a>
-          </li>';
-            }
-          }
-          ?>
-          <?php
-          if (isset($_SESSION['user']) || isset($_SESSION['nama_petugas'])) {
-            // Jika pengguna sudah login, tampilkan tautan "Logout"
-            echo '<li class="nav-item">
-                        <a class="nav-link" href="../public/logout.php">Logout</a>
-                    </li>';
-          }
-          ?>
+          <?php if (isset($_SESSION['level'])) {
+            $dashboardLink = ($_SESSION['level'] === 'admin') ? '../admin/index.php' : '../officer/index.php'; ?>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo $dashboardLink; ?>">Dashboard</a>
+            </li>
+          <?php } ?>
+          <?php if (isset($_SESSION['user']) || isset($_SESSION['nama_petugas'])) { ?>
+            <li class="nav-item">
+              <a class="nav-link" href="../public/logout.php">Logout</a>
+            </li>
+          <?php } ?>
           <!-- Tambahkan tautan lain sesuai kebutuhan -->
         </ul>
       </div>

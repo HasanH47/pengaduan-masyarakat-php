@@ -21,10 +21,13 @@ $query = "
   FROM pengaduan
   INNER JOIN tanggapan ON pengaduan.id_pengaduan = tanggapan.id_pengaduan
   INNER JOIN petugas ON tanggapan.id_petugas = petugas.id_petugas
-  WHERE pengaduan.id_pengaduan = $id_pengaduan
+  WHERE pengaduan.id_pengaduan = ?
 ";
 
-$result = $conn->query($query);
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $id_pengaduan);
+$stmt->execute();
+$result = $stmt->get_result();
 
 if (!$result || $result->num_rows === 0) {
   header('Location: dashboard.php');
@@ -41,7 +44,7 @@ $row = $result->fetch_assoc();
   <div class="card mb-3">
     <div class="card-body">
       <h5 class="card-title">ID Pengaduan: <?php echo $row['id_pengaduan']; ?></h5>
-      <p class="card-text">Tanggal Pengaduan: <?php echo $row['tgl_pengaduan']; ?></p>
+      <p class="card-text">Tanggal Pengaduan: <?php echo date('d F Y', strtotime($row['tgl_pengaduan'])); ?></p>
       <p class="card-text">Isi Laporan: <?php echo $row['isi_laporan']; ?></p>
       <p class="card-text">Status: <?php echo $row['status']; ?></p>
       <?php if ($row['foto']) { ?>
@@ -53,7 +56,7 @@ $row = $result->fetch_assoc();
   <h3>Tanggapan oleh Petugas <?php echo $row['nama_petugas']; ?></h3>
   <div class="card mb-3">
     <div class="card-body">
-      <p class="card-text">Tanggal Tanggapan: <?php echo $row['tgl_tanggapan']; ?></p>
+      <p class="card-text">Tanggal Tanggapan: <?php echo date('d F Y', strtotime($row['tgl_tanggapan'])); ?></p>
       <p class="card-text">Isi Tanggapan: <?php echo $row['isi_tanggapan']; ?></p>
     </div>
   </div>

@@ -16,8 +16,11 @@ if (isset($_GET['id'])) {
   $id_petugas = $_GET['id'];
 
   // Query untuk mengambil data petugas dari database
-  $query = "SELECT * FROM petugas WHERE id_petugas = $id_petugas";
-  $result = $conn->query($query);
+  $query = "SELECT * FROM petugas WHERE id_petugas = ?";
+  $stmt = $conn->prepare($query);
+  $stmt->bind_param('i', $id_petugas);
+  $stmt->execute();
+  $result = $stmt->get_result();
 
   if (!$result || $result->num_rows === 0) {
     header('Location: manage_officers.php'); // Redirect jika id_petugas tidak ditemukan
@@ -37,9 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $level = $_POST['level'];
 
   // Query untuk mengupdate data petugas di database
-  $queryUpdate = "UPDATE petugas SET nama_petugas = '$nama_petugas', username = '$username', level = '$level' WHERE id_petugas = $id_petugas";
+  $queryUpdate = "UPDATE petugas SET nama_petugas = ?, username = ?, level = ? WHERE id_petugas = ?";
+  $stmtUpdate = $conn->prepare($queryUpdate);
+  $stmtUpdate->bind_param('sssi', $nama_petugas, $username, $level, $id_petugas);
 
-  if ($conn->query($queryUpdate)) {
+  if ($stmtUpdate->execute()) {
     header('Location: manage_officers.php'); // Redirect kembali ke halaman kelola petugas setelah berhasil mengupdate
     exit();
   } else {

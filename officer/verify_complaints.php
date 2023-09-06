@@ -23,6 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_pengaduan = $_POST['id_pengaduan'];
     $queryVerify = "UPDATE pengaduan SET status = 'proses' WHERE id_pengaduan = $id_pengaduan";
     $conn->query($queryVerify);
+    header('Location: verify_complaints.php'); // Redirect kembali ke halaman verifikasi pengaduan setelah verifikasi
+    exit();
   }
 }
 ?>
@@ -54,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ?>
           <tr>
             <td><?php echo $counter; ?></td>
-            <td><?php echo $row['tgl_pengaduan']; ?></td>
+            <td><?php echo date('d F Y', strtotime($row['tgl_pengaduan'])); ?></td>
             <td><?php echo $row['isi_laporan']; ?></td>
             <td><?php echo ($row['foto'] ? 'Ada' : 'Tidak Ada'); ?></td>
             <td><?php
@@ -97,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php } else { ?>
     <p>Tidak ada pengaduan yang perlu diverfikasi saat ini.</p>
   <?php } ?>
-  <a href="index.php">Kembali</a>
+  <a href="index.php" class="btn btn-primary">Kembali</a>
 </div>
 
 <?php include('../includes/footer.php'); ?>

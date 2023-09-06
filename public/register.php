@@ -1,6 +1,8 @@
 <?php
 include('../classes/Database.php');
 
+$error_message = "";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nik = $_POST['nik'];
   $nama = $_POST['nama'];
@@ -10,9 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $telp = $_POST['telp'];
 
   // Validasi input
-  $error_message = "";
   if (!preg_match('/^[0-9]{1,16}$/', $nik)) {
-    $error_message .= "NIK hanya boleh berisi angka dan maksimal 16 digit. ";
+    $error_message = "NIK hanya boleh berisi angka dan maksimal 16 digit. ";
   }
   if (!preg_match('/^[A-Za-z\s]+$/', $nama)) {
     $error_message .= "Nama hanya boleh berisi huruf saja. ";
@@ -26,14 +27,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $db = new Database();
     $conn = $db->getConnection();
 
-    $query = "INSERT INTO masyarakat (nik, nama, username, password, telp) VALUES ('$nik', '$nama', '$username', '$hashedPassword', '$telp')";
+    $query = "INSERT INTO masyarakat (nik, nama, username, password, telp) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("sssss", $nik, $nama, $username, $hashedPassword, $telp);
 
-    if ($conn->query($query)) {
+    if ($stmt->execute()) {
       header('Location: login.php'); // Redirect kembali ke halaman login setelah registrasi berhasil
       exit();
     } else {
       $error_message = "Registrasi gagal. Silakan coba lagi.";
     }
+
+    $stmt->close();
   }
 }
 ?>
@@ -69,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <input type="tel" class="form-control" id="telp" name="telp" pattern="[0-9]{10,13}" title="Nomor telepon hanya boleh berisi angka dan memiliki panjang 10 hingga 13 digit" required maxlength="13">
     </div>
     <button type="submit" class="btn btn-primary">Register</button>
-    <p>Sudah punya akun? <a href="login.php">Login</p>
+    <p>Sudah punya akun? <a href="login.php">Login</a></p>
   </form>
 </div>
 

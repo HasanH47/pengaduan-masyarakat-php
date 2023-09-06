@@ -2,13 +2,13 @@
 session_start();
 include('../classes/Database.php');
 
-// Verifikasi apakah user telah login sebagai admin
 if (!isset($_SESSION['id_petugas']) || $_SESSION['level'] !== 'admin') {
   header('Location: ../public/login.php');
   exit();
 }
 
-// Proses data ketika formulir disubmit
+$error_message = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nama_petugas = $_POST['nama_petugas'];
   $username = $_POST['username'];
@@ -17,23 +17,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $level = $_POST['level'];
   $telp = $_POST['telp'];
 
+  $valid = true; // Tandai bahwa data valid secara default
+
   // Validasi input
-  $error_message = "";
   if (!preg_match('/^[A-Za-z\s]+$/', $nama_petugas)) {
     $error_message .= "Nama petugas hanya boleh berisi huruf saja. ";
+    $valid = false;
   }
   if (!preg_match('/^[0-9]{10,13}$/', $telp)) {
     $error_message .= "Nomor telepon hanya boleh berisi angka dan memiliki panjang 10 hingga 13 digit. ";
+    $valid = false;
   }
 
-  if ($error_message === "") {
+  if ($valid) {
     $db = new Database();
     $conn = $db->getConnection();
 
-    // Query untuk menambahkan petugas ke database
-    $query = "INSERT INTO petugas (nama_petugas, username, password, level, telp) VALUES ('$nama_petugas', '$username', '$hashedPassword', '$level', '$telp')";
+    $query = "INSERT INTO petugas (nama_petugas, username, password, level, telp) VALUES (?, ?, ?, ?, ?)";
 
-    if ($conn->query($query)) {
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('sssss', $nama_petugas, $username, $hashedPassword, $level, $telp);
+
+    if ($stmt->execute()) {
       header('Location: manage_officers.php');
       exit();
     } else {

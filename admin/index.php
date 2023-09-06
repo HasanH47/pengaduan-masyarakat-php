@@ -1,8 +1,11 @@
-<?php session_start();
+<?php
+session_start();
 if (!isset($_SESSION['id_petugas']) || $_SESSION['level'] !== 'admin') {
   header('Location: ../public/login.php');
   exit();
-} ?>
+}
+?>
+
 <?php include('../includes/header.php'); ?>
 
 <div class="container mt-5">

@@ -18,7 +18,7 @@ include('../includes/header.php');
       }
     }
   } else {
-    echo '<a href="login.php" class="btn btn-primary">Login</a>' . PHP_EOL;
+    echo '<a href="login.php" class="btn btn-primary">Login</a>';
     echo '<a href="register.php" class="btn btn-secondary">Register</a>';
   }
   ?>

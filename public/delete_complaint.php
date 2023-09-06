@@ -7,20 +7,24 @@ if (!isset($_SESSION['nik'])) {
   exit();
 }
 
+$db = new Database();
+$conn = $db->getConnection();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $id_pengaduan = $_POST['id_pengaduan'];
   $foto = $_POST['foto'];
 
-  $db = new Database();
-  $conn = $db->getConnection();
-
   // Hapus foto jika ada
   if (!empty($foto)) {
     $upload_dir = '../assets/uploads/';
-    unlink($upload_dir . $foto);
+    $foto_path = $upload_dir . $foto;
+
+    if (file_exists($foto_path)) {
+      unlink($foto_path);
+    }
   }
 
-  // Hapus pengaduan
+  // Hapus pengaduan dan tanggapan terkait
   $queryDelete = "DELETE FROM pengaduan WHERE id_pengaduan = $id_pengaduan";
   $queryDeleteTanggapan = "DELETE FROM tanggapan WHERE id_pengaduan = $id_pengaduan";
 
@@ -33,12 +37,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } elseif (isset($_GET['id'])) {
   $id_pengaduan = $_GET['id'];
 
-  $db = new Database();
-  $conn = $db->getConnection();
-
   $query = "SELECT * FROM pengaduan WHERE id_pengaduan = $id_pengaduan";
   $result = $conn->query($query);
-  $pengaduan = $result->fetch_assoc();
+
+  if ($result->num_rows === 1) {
+    $pengaduan = $result->fetch_assoc();
+  } else {
+    header('Location: dashboard.php');
+    exit();
+  }
 } else {
   header('Location: dashboard.php');
   exit();

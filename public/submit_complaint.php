@@ -2,6 +2,8 @@
 session_start();
 include('../classes/Database.php');
 
+$error_message = "";
+
 if (!isset($_SESSION['nik'])) {
   header('Location: login.php');
   exit();
@@ -22,19 +24,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $file_path = $upload_dir . $file_name;
 
   // Pindahkan foto ke lokasi penyimpanan
-  move_uploaded_file($file_tmp, $file_path);
+  if (!empty($file_name)) {
+    move_uploaded_file($file_tmp, $file_path);
 
-  // Implementasi validasi atau proses penyimpanan laporan pengaduan di sini (sesuai dengan metode Anda)
-  $db = new Database();
-  $conn = $db->getConnection();
+    // Implementasi validasi atau proses penyimpanan laporan pengaduan di sini (sesuai dengan metode Anda)
+    $db = new Database();
+    $conn = $db->getConnection();
 
-  $query = "INSERT INTO pengaduan (tgl_pengaduan, nik, isi_laporan, foto, status) VALUES ('$tgl_pengaduan', '$nik', '$isi_laporan', '$file_name', '$status')";
+    $query = "INSERT INTO pengaduan (tgl_pengaduan, nik, isi_laporan, foto, status) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("sssss", $tgl_pengaduan, $nik, $isi_laporan, $file_name, $status);
 
-  if ($conn->query($query)) {
-    header('Location: dashboard.php'); // Redirect kembali ke halaman dashboard setelah pengaduan berhasil dikirim
-    exit();
+    if ($stmt->execute()) {
+      header('Location: dashboard.php'); // Redirect kembali ke halaman dashboard setelah pengaduan berhasil dikirim
+      exit();
+    } else {
+      $error_message = "Gagal mengirimkan pengaduan. Silakan coba lagi.";
+    }
+
+    $stmt->close();
   } else {
-    $error_message = "Gagal mengirimkan pengaduan. Silakan coba lagi.";
+    $error_message = "Mohon pilih foto untuk pengaduan Anda.";
   }
 }
 ?>
@@ -43,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container mt-5">
   <h2>Submit Pengaduan</h2>
-  <?php if (isset($error_message)) { ?>
+  <?php if (!empty($error_message)) { ?>
     <div class="alert alert-danger" role="alert">
       <?php echo $error_message; ?>
     </div>

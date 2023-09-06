@@ -17,7 +17,7 @@ $db = new Database();
 $conn = $db->getConnection();
 
 // Ambil data pengaduan dan tanggapan jika ada
-$query = "SELECT p.*, t.tanggapan, t.tgl_tanggapan FROM pengaduan p LEFT JOIN tanggapan t ON p.id_pengaduan = t.id_pengaduan WHERE p.id_pengaduan = $id_pengaduan";
+$query = "SELECT p.*, t.tanggapan, t.tgl_tanggapan, petugas.nama_petugas FROM pengaduan p LEFT JOIN tanggapan t ON p.id_pengaduan = t.id_pengaduan INNER JOIN petugas ON t.id_petugas = petugas.id_petugas WHERE p.id_pengaduan = $id_pengaduan";
 $result = $conn->query($query);
 
 if (!$result || $result->num_rows === 0) {
@@ -59,13 +59,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <h4>Detail Pengaduan</h4>
   <p><strong>ID Pengaduan:</strong> <?php echo $row['id_pengaduan']; ?></p>
-  <p><strong>Tanggal Pengaduan:</strong> <?php echo $row['tgl_pengaduan']; ?></p>
+  <p><strong>Tanggal Pengaduan:</strong> <?php echo date('d F Y', strtotime($row['tgl_pengaduan'])); ?></p>
   <p><strong>Isi Laporan:</strong> <?php echo $row['isi_laporan']; ?></p>
   <p><strong>Status:</strong> <?php echo $row['status']; ?></p>
 
   <?php if ($row['tanggapan']) { ?>
     <h4>Tanggapan Sebelumnya</h4>
-    <p><strong>Tanggal Tanggapan:</strong> <?php echo $row['tgl_tanggapan']; ?></p>
+    <p><strong>Tanggal Tanggapan:</strong> <?php echo date('d F Y', strtotime($row['tgl_tanggapan'])); ?></p>
+    <p><strong>Nama Petugas:</strong> <?php echo $row['nama_petugas']; ?></p>
     <p><?php echo $row['tanggapan']; ?></p>
   <?php } ?>
 

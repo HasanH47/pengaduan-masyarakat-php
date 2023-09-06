@@ -11,12 +11,16 @@ if (!isset($_SESSION['id_petugas']) || $_SESSION['level'] !== 'admin') {
 $db = new Database();
 $conn = $db->getConnection();
 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $start_date = $_POST['start_date'];
   $end_date = $_POST['end_date'];
 
-  $query = "SELECT * FROM pengaduan WHERE tgl_pengaduan BETWEEN '$start_date' AND '$end_date'";
-  $result = $conn->query($query);
+  $query = "SELECT * FROM pengaduan WHERE tgl_pengaduan BETWEEN ? AND ?";
+  $stmt = $conn->prepare($query);
+  $stmt->bind_param('ss', $start_date, $end_date);
+  $stmt->execute();
+  $result = $stmt->get_result();
 
   if ($result && $result->num_rows > 0) {
     $complaints = $result->fetch_all(MYSQLI_ASSOC);

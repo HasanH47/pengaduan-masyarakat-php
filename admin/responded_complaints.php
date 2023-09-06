@@ -15,7 +15,7 @@ $query = "
   SELECT pengaduan.*, tanggapan.tgl_tanggapan, tanggapan.tanggapan AS isi_tanggapan
   FROM pengaduan
   INNER JOIN tanggapan ON pengaduan.id_pengaduan = tanggapan.id_pengaduan
-  WHERE tanggapan.id_petugas = {$_SESSION['id_petugas']}
+  WHERE tanggapan.id_petugas
   ORDER BY tanggapan.tgl_tanggapan DESC
 ";
 
@@ -29,21 +29,19 @@ $result = $conn->query($query);
   <table class="table">
     <thead>
       <tr>
-        <th>ID Pengaduan</th>
+        <th>#</th>
         <th>Tanggal Pengaduan</th>
-        <!-- <th>NIK</th> -->
         <th>Isi Laporan</th>
         <th>Foto</th>
-        <!-- <th>Tanggapan</th> -->
         <th>Tanggal Tanggapan</th>
         <th>Status</th>
-        <th>Tanggapan</th>
+        <th>Jumlah Tanggapan</th>
         <th>Aksi</th>
       </tr>
     </thead>
     <tbody>
       <?php
-      $counter = 1; // Counter untuk nomor pengaduan buatan
+      $counter = 1; // Counter untuk nomor pengaduan
       while ($row = $result->fetch_assoc()) {
         $queryCountTanggapan = "SELECT COUNT(*) AS jumlah_tanggapan FROM tanggapan WHERE id_pengaduan = {$row['id_pengaduan']}";
         $resultCountTanggapan = $conn->query($queryCountTanggapan);
@@ -52,22 +50,10 @@ $result = $conn->query($query);
         <tr>
           <td><?php echo $counter; ?></td>
           <td><?php echo $row['tgl_pengaduan']; ?></td>
-          <!-- <td><?php echo $row['nik']; ?></td> -->
           <td><?php echo $row['isi_laporan']; ?></td>
           <td><?php echo ($row['foto'] ? 'Ada' : 'Tidak Ada'); ?></td>
-          <!-- <td><?php echo $row['isi_tanggapan']; ?></td> -->
           <td><?php echo $row['tgl_tanggapan']; ?></td>
-          <td><?php
-              if ($row['status'] === '0') {
-                echo 'Belum Diproses';
-              } elseif ($row['status'] === 'proses') {
-                echo 'Sedang Diproses';
-              } elseif ($row['status'] === 'selesai') {
-                echo 'Selesai';
-              } else {
-                echo 'Status Tidak Valid';
-              }
-              ?></td>
+          <td><?php echo getStatusLabel($row['status']); ?></td>
           <td><span class="badge bg-danger"><?php echo $countTanggapan; ?></span></td>
           <td>
             <a href="detail_complaint.php?id=<?php echo $row['id_pengaduan']; ?>" class="btn btn-info btn-sm">Detail</a>
@@ -91,3 +77,18 @@ $result = $conn->query($query);
 </div>
 
 <?php include('../includes/footer.php'); ?>
+
+<?php
+function getStatusLabel($status)
+{
+  if ($status === '0') {
+    return 'Belum Diproses';
+  } elseif ($status === 'proses') {
+    return 'Sedang Diproses';
+  } elseif ($status === 'selesai') {
+    return 'Selesai';
+  } else {
+    return 'Status Tidak Valid';
+  }
+}
+?>

@@ -32,12 +32,13 @@ $result = $conn->query($query);
       </tr>
     </thead>
     <tbody>
-      <?php while ($row = $result->fetch_assoc()) { ?>
+      <?php $counter = 1;
+      while ($row = $result->fetch_assoc()) { ?>
         <tr>
-          <td><?php echo $row['id_petugas']; ?></td>
+          <td><?php echo $counter; ?></td>
           <td><?php echo $row['nama_petugas']; ?></td>
           <td><?php echo $row['username']; ?></td>
-          <td><?php echo $row['level']; ?></td>
+          <td><?php echo ucfirst($row['level']); ?></td>
           <td>
             <?php if ($row['level'] !== 'admin') { ?>
               <a href="edit_officer.php?id=<?php echo $row['id_petugas']; ?>" class="btn btn-warning btn-sm">Edit</a>
@@ -48,7 +49,8 @@ $result = $conn->query($query);
             <?php } ?>
           </td>
         </tr>
-      <?php } ?>
+      <?php $counter++;
+      } ?>
     </tbody>
   </table>
 </div>

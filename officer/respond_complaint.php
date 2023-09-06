@@ -16,8 +16,13 @@ $id_pengaduan = $_GET['id'];
 $db = new Database();
 $conn = $db->getConnection();
 
-// Ambil data pengaduan dan tanggapan jika ada
-$query = "SELECT p.*, t.tanggapan, t.tgl_tanggapan FROM pengaduan p LEFT JOIN tanggapan t ON p.id_pengaduan = t.id_pengaduan WHERE p.id_pengaduan = $id_pengaduan";
+$query = "
+  SELECT p.*, t.tanggapan, t.tgl_tanggapan
+  FROM pengaduan p
+  LEFT JOIN tanggapan t ON p.id_pengaduan = t.id_pengaduan
+  WHERE p.id_pengaduan = $id_pengaduan
+";
+
 $result = $conn->query($query);
 
 if (!$result || $result->num_rows === 0) {
@@ -32,9 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $id_petugas = $_SESSION['id_petugas'];
 
   // Implementasi validasi atau proses penyimpanan tanggapan di sini (sesuai dengan metode Anda)
-  $query = "INSERT INTO tanggapan (id_pengaduan, tgl_tanggapan, tanggapan, id_petugas) VALUES ('$id_pengaduan', NOW(), '$tanggapan', '$id_petugas')";
+  $insertQuery = "INSERT INTO tanggapan (id_pengaduan, tgl_tanggapan, tanggapan, id_petugas) VALUES ('$id_pengaduan', NOW(), '$tanggapan', '$id_petugas')";
 
-  if ($conn->query($query)) {
+  if ($conn->query($insertQuery)) {
     // Update status pengaduan menjadi 'proses'
     $updateQuery = "UPDATE pengaduan SET status = 'proses' WHERE id_pengaduan = $id_pengaduan";
     $conn->query($updateQuery);
@@ -59,13 +64,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <h4>Detail Pengaduan</h4>
   <p><strong>ID Pengaduan:</strong> <?php echo $row['id_pengaduan']; ?></p>
-  <p><strong>Tanggal Pengaduan:</strong> <?php echo $row['tgl_pengaduan']; ?></p>
+  <p><strong>Tanggal Pengaduan:</strong> <?php echo date('d F Y', strtotime($row['tgl_pengaduan'])); ?></p>
   <p><strong>Isi Laporan:</strong> <?php echo $row['isi_laporan']; ?></p>
   <p><strong>Status:</strong> <?php echo $row['status']; ?></p>
 
   <?php if ($row['tanggapan']) { ?>
     <h4>Tanggapan Sebelumnya</h4>
-    <p><strong>Tanggal Tanggapan:</strong> <?php echo $row['tgl_tanggapan']; ?></p>
+    <p><strong>Tanggal Tanggapan:</strong> <?php echo date('d F Y', strtotime($row['tgl_tanggapan'])); ?></p>
     <p><?php echo $row['tanggapan']; ?></p>
   <?php } ?>
 
@@ -77,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <textarea class="form-control" id="tanggapan" name="tanggapan" rows="5" required></textarea>
     </div>
     <button type="submit" class="btn btn-primary">Submit Tanggapan</button>
+    <a href="verify_complaints.php" class="btn btn-secondary">Kembali</a>
   </form>
 </div>
 

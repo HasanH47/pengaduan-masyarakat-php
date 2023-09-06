@@ -18,8 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if ($resultMasyarakat && $resultMasyarakat->num_rows > 0) {
     $rowMasyarakat = $resultMasyarakat->fetch_assoc();
-    $hashedPassword = $rowMasyarakat['password'];
-    if (password_verify($password, $hashedPassword)) {
+    if (password_verify($password, $rowMasyarakat['password'])) {
       $_SESSION['user'] = $username;
       $_SESSION['nik'] = $rowMasyarakat['nik'];
       header('Location: dashboard.php');
@@ -36,8 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if ($resultPetugas && $resultPetugas->num_rows > 0) {
     $rowPetugas = $resultPetugas->fetch_assoc();
-    $hashedPassword = $rowPetugas['password'];
-    if (password_verify($password, $hashedPassword)) {
+    if (password_verify($password, $rowPetugas['password'])) {
       $_SESSION['id_petugas'] = $rowPetugas['id_petugas'];
       $_SESSION['nama_petugas'] = $rowPetugas['nama_petugas'];
       $_SESSION['level'] = $rowPetugas['level'];

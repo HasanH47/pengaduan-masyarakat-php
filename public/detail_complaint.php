@@ -38,21 +38,9 @@ $resultKomentar = $conn->query($queryKomentar);
   <div class="card mb-3">
     <div class="card-body">
       <h5 class="card-title">ID Pengaduan: <?php echo $rowPengaduan['id_pengaduan']; ?></h5>
-      <p class="card-text">Tanggal Pengaduan: <?php echo $rowPengaduan['tgl_pengaduan']; ?></p>
-      <p class="card-text">Isi Laporan: <?php echo $rowPengaduan['isi_laporan']; ?></p>
-      <p class="card-text">Status:
-        <?php
-        if ($rowPengaduan['status'] === '0') {
-          echo 'Belum Diproses';
-        } elseif ($rowPengaduan['status'] === 'proses') {
-          echo 'Sedang Diproses';
-        } elseif ($rowPengaduan['status'] === 'selesai') {
-          echo 'Selesai';
-        } else {
-          echo 'Status Tidak Valid';
-        }
-        ?>
-      </p>
+      <p class="card-text">Tanggal Pengaduan: <?php echo date('d F Y', strtotime($rowPengaduan['tgl_pengaduan'])); ?></p>
+      <p class="card-text">Isi Laporan: <?php echo htmlspecialchars($rowPengaduan['isi_laporan']); ?></p>
+      <p class="card-text">Status: <?php echo getStatusText($rowPengaduan['status']); ?></p>
       <?php if ($rowPengaduan['foto']) { ?>
         <p class="card-text">Gambar:</p>
         <img src="../assets/uploads/<?php echo $rowPengaduan['foto']; ?>" alt="Foto Pengaduan" class="img-fluid">
@@ -64,8 +52,8 @@ $resultKomentar = $conn->query($queryKomentar);
   <?php while ($rowKomentar = $resultKomentar->fetch_assoc()) { ?>
     <div class="card mb-3">
       <div class="card-body">
-        <p class="card-text">Tanggal Tanggapan: <?php echo $rowKomentar['tgl_tanggapan']; ?></p>
-        <p class="card-text">Tanggapan: <?php echo $rowKomentar['tanggapan']; ?></p>
+        <p class="card-text">Tanggal Tanggapan: <?php echo date('d F Y', strtotime($rowKomentar['tgl_tanggapan'])); ?></p>
+        <p class="card-text">Tanggapan: <?php echo htmlspecialchars($rowKomentar['tanggapan']); ?></p>
       </div>
     </div>
   <?php } ?>
@@ -74,3 +62,18 @@ $resultKomentar = $conn->query($queryKomentar);
 </div>
 
 <?php include('../includes/footer.php'); ?>
+
+<?php
+function getStatusText($status)
+{
+  if ($status === '0') {
+    return 'Belum Diproses';
+  } elseif ($status === 'proses') {
+    return 'Sedang Diproses';
+  } elseif ($status === 'selesai') {
+    return 'Selesai';
+  } else {
+    return 'Status Tidak Valid';
+  }
+}
+?>

@@ -15,7 +15,7 @@ $query = "
   SELECT pengaduan.*, tanggapan.tgl_tanggapan, tanggapan.tanggapan AS isi_tanggapan
   FROM pengaduan
   INNER JOIN tanggapan ON pengaduan.id_pengaduan = tanggapan.id_pengaduan
-  WHERE tanggapan.id_petugas = {$_SESSION['id_petugas']}
+  WHERE tanggapan.id_petugas
   ORDER BY tanggapan.tgl_tanggapan DESC
 ";
 
@@ -29,13 +29,14 @@ $result = $conn->query($query);
   <table class="table">
     <thead>
       <tr>
+        <th>Nomor</th>
         <th>ID Pengaduan</th>
         <th>Tanggal Pengaduan</th>
         <th>Isi Laporan</th>
         <th>Tanggapan</th>
         <th>Tanggal Tanggapan</th>
         <th>Status</th>
-        <th>Tanggapan</th>
+        <th>Jumlah Tanggapan</th>
         <th>Aksi</th>
       </tr>
     </thead>
@@ -49,10 +50,11 @@ $result = $conn->query($query);
       ?>
         <tr>
           <td><?php echo $counter; ?></td>
-          <td><?php echo $row['tgl_pengaduan']; ?></td>
+          <td><?php echo $row['id_pengaduan']; ?></td>
+          <td><?php echo date('d F Y', strtotime($row['tgl_pengaduan'])); ?></td>
           <td><?php echo $row['isi_laporan']; ?></td>
           <td><?php echo $row['isi_tanggapan']; ?></td>
-          <td><?php echo $row['tgl_tanggapan']; ?></td>
+          <td><?php echo date('d F Y', strtotime($row['tgl_tanggapan'])); ?></td>
           <td><?php
               if ($row['status'] === '0') {
                 echo 'Belum Diproses';
@@ -84,6 +86,7 @@ $result = $conn->query($query);
       ?>
     </tbody>
   </table>
+  <a href="index.php" class="btn btn-primary">Kembali</a>
 </div>
 
 <?php include('../includes/footer.php'); ?>

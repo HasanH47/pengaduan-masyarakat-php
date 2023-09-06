@@ -2,10 +2,14 @@
 session_start();
 include('../classes/Database.php');
 
+// Verifikasi apakah user telah login sebagai admin
 if (!isset($_SESSION['id_petugas']) || $_SESSION['level'] !== 'admin') {
   header('Location: ../public/login.php');
   exit();
 }
+
+$db = new Database();
+$conn = $db->getConnection();
 
 if (!isset($_GET['id'])) {
   header('Location: dashboard.php');
@@ -13,18 +17,20 @@ if (!isset($_GET['id'])) {
 }
 
 $id_pengaduan = $_GET['id'];
-$db = new Database();
-$conn = $db->getConnection();
 
+// Query untuk mengambil detail pengaduan dan tanggapan oleh petugas
 $query = "
   SELECT pengaduan.*, tanggapan.tgl_tanggapan, tanggapan.tanggapan AS isi_tanggapan, petugas.nama_petugas
   FROM pengaduan
   INNER JOIN tanggapan ON pengaduan.id_pengaduan = tanggapan.id_pengaduan
   INNER JOIN petugas ON tanggapan.id_petugas = petugas.id_petugas
-  WHERE pengaduan.id_pengaduan = $id_pengaduan
+  WHERE pengaduan.id_pengaduan = ?
 ";
 
-$result = $conn->query($query);
+$stmt = $conn->prepare($query);
+$stmt->bind_param('i', $id_pengaduan);
+$stmt->execute();
+$result = $stmt->get_result();
 
 if (!$result || $result->num_rows === 0) {
   header('Location: dashboard.php');
@@ -32,9 +38,9 @@ if (!$result || $result->num_rows === 0) {
 }
 
 $row = $result->fetch_assoc();
-?>
 
-<?php include('../includes/header.php'); ?>
+include('../includes/header.php');
+?>
 
 <div class="container mt-5">
   <h2>Detail Pengaduan</h2>
